@@ -16,7 +16,14 @@ This is a secure chat application built using Flask, Socket.IO, and AES/RSA encr
 - Flask-SQLAlchemy
 - Flask-SocketIO
 - pycryptodome
-
+```bash
+pip install Flask
+pip install Flask-SocketIO
+pip install Flask-SQLAlchemy
+pip install Werkzeug
+pip install pycryptodome
+pip install eventlet
+```
 ## Setup
 
 Clone the repository.
