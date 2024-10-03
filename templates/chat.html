@@ -3,40 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Encrypted Chat Application</title>
-    <style>body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-}
+    <title>CryptChat</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #1e1e1e;
+            color: #c0c0c0;
+            margin: 0;
+            padding: 0;
+        }
 
-.container {
-    width: 80%;
-    margin: 0 auto;
-    padding: 20px;
-}
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+            background-color: #2a2a2a;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
 
-.chat-box {
-    border: 1px solid #ccc;
-    height: 400px;
-    overflow-y: scroll;
-    padding: 10px;
-    background-color: #fff;
-}
+        .chat-box {
+            border: 1px solid #444;
+            height: 400px;
+            overflow-y: scroll;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 4px;
+        }
 
-#message-input {
-    width: 70%;
-    padding: 10px;
-}
+        #message-input {
+            width: 70%;
+            padding: 10px;
+            background-color: #444;
+            border: 1px solid #666;
+            color: #fff;
+        }
 
-button {
-    padding: 10px;
-}</style>
+        button {
+            padding: 10px;
+            background-color: #5a5a5a;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #777;
+        }
+
+        input[type="file"] {
+            background-color: #444;
+            color: #fff;
+            border: 1px solid #666;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="chat-box">
-            <div id="messages"></div>
-        </div>
+        <h1>Secure Encrypted Chat</h1>
+        <div class="chat-box" id="messages"></div>
         <input id="message-input" type="text" placeholder="Type your message..." />
         <button id="send-button">Send</button>
         <input type="file" id="file-input" />
@@ -44,55 +72,62 @@ button {
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <script>const socket = io.connect('http://localhost:5000');
+    <script>
+        const socket = io.connect('http://localhost:5000');
 
-document.getElementById('send-button').onclick = function () {
-    const messageInput = document.getElementById('message-input');
-    const message = messageInput.value;
+        document.getElementById('send-button').onclick = function () {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value;
 
-    // Encrypt the message
-    const encryptedMessage = encryptMessage(message);
+            // Encrypt the message
+            const encryptedMessage = encryptMessage(message);
 
-    socket.emit('message', { message: encryptedMessage });
+            // Send the encrypted message to the server
+            socket.emit('message', { message: encryptedMessage });
 
-    messageInput.value = '';
-};
+            messageInput.value = '';
+        };
 
-document.getElementById('upload-button').onclick = function () {
-    const fileInput = document.getElementById('file-input');
-    const file = fileInput.files[0];
-    
-    const reader = new FileReader();
-    reader.onload = function (event) {
-        // Encrypt the file data
-        const encryptedFileData = encryptFile(event.target.result);
-        socket.emit('file_upload', { file: encryptedFileData, filename: file.name });
-    };
+        document.getElementById('upload-button').onclick = function () {
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+            
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                // Encrypt the file data
+                const encryptedFileData = encryptFile(event.target.result);
+                socket.emit('file_upload', { file: encryptedFileData, filename: file.name });
+            };
 
-    if (file) {
-        reader.readAsArrayBuffer(file);
-    }
-};
+            if (file) {
+                reader.readAsArrayBuffer(file);
+            }
+        };
 
-socket.on('message', function (data) {
-    const messagesDiv = document.getElementById('messages');
-    messagesDiv.innerHTML += '<div>' + data.message + '</div>';
-});
+        socket.on('message', function (data) {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML += '<div>' + decryptMessage(data.message) + '</div>';
+        });
 
-socket.on('file_uploaded', function (data) {
-    const messagesDiv = document.getElementById('messages');
-    messagesDiv.innerHTML += '<div>File uploaded: ' + data.filename + '</div>';
-});
+        socket.on('file_uploaded', function (data) {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML += '<div>File uploaded: ' + data.filename + '</div>';
+        });
 
-// Encrypt message (dummy function for demonstration, implement proper encryption)
-function encryptMessage(message) {
-    return btoa(message); // Base64 encoding as a placeholder
-}
+        // Encrypt message (implement proper encryption)
+        function encryptMessage(message) {
+            return btoa(message); // Base64 encoding as a placeholder
+        }
 
-// Encrypt file (dummy function for demonstration, implement proper encryption)
-function encryptFile(fileData) {
-    return btoa(fileData); // Base64 encoding as a placeholder
-}
-</script>
+        // Decrypt message (implement proper decryption)
+        function decryptMessage(encryptedMessage) {
+            return atob(encryptedMessage); // Base64 decoding as a placeholder
+        }
+
+        // Encrypt file (implement proper encryption)
+        function encryptFile(fileData) {
+            return btoa(fileData); // Base64 encoding as a placeholder
+        }
+    </script>
 </body>
 </html>
