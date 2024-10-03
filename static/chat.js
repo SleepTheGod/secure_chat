@@ -1,14 +1,21 @@
 const socket = io.connect('http://localhost:5000');
 
-document.getElementById('send').onclick = function () {
-    const receiver = document.getElementById('receiver').value;
-    const message = document.getElementById('message').value;
+document.getElementById('send-button').onclick = function () {
+    const messageInput = document.getElementById('message-input');
+    const message = messageInput.value;
 
-    socket.emit('send_message', { receiver, message });
+    // Get receiver username (could be improved for a group chat)
+    const receiver = prompt("Enter receiver's username:");
+
+    socket.emit('message', { message: message, receiver: receiver });
+
+    messageInput.value = '';
 };
 
-socket.on('receive_message', function (data) {
-    document.getElementById('chat-log').innerHTML += '<div><strong>' + data.sender + ':</strong> ' + data.message + '</div>';
+socket.on('message', function (data) {
+    const messagesDiv = document.getElementById('messages');
+    messagesDiv.innerHTML += '<div>' + data.content + '</div>';
 });
 
-socket.emit('join');
+// Request messages from the server on load
+socket.emit('request_messages');
