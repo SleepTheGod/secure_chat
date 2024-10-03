@@ -3,16 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Chat</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
-    <script src="{{ url_for('static', filename='chat.js') }}"></script>
+    <title>Encrypted Chat Application</title>
+    <style>body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.chat-box {
+    border: 1px solid #ccc;
+    height: 400px;
+    overflow-y: scroll;
+    padding: 10px;
+    background-color: #fff;
+}
+
+#message-input {
+    width: 70%;
+    padding: 10px;
+}
+
+button {
+    padding: 10px;
+}</style>
 </head>
 <body>
-    <div>
-        <input id="receiver" type="text" placeholder="Receiver username">
-        <input id="message" type="text" placeholder="Type your message">
-        <button id="send">Send Message</button>
+    <div class="container">
+        <div class="chat-box">
+            <div id="messages"></div>
+        </div>
+        <input id="message-input" type="text" placeholder="Type your message..." />
+        <button id="send-button">Send</button>
+        <input type="file" id="file-input" />
+        <button id="upload-button">Upload</button>
     </div>
-    <div id="chat-log"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>const socket = io.connect('http://localhost:5000');
+
+document.getElementById('send-button').onclick = function () {
+    const messageInput = document.getElementById('message-input');
+    const message = messageInput.value;
+
+    // Encrypt the message
+    const encryptedMessage = encryptMessage(message);
+
+    socket.emit('message', { message: encryptedMessage });
+
+    messageInput.value = '';
+};
+
+document.getElementById('upload-button').onclick = function () {
+    const fileInput = document.getElementById('file-input');
+    const file = fileInput.files[0];
+    
+    const reader = new FileReader();
+    reader.onload = function (event) {
+        // Encrypt the file data
+        const encryptedFileData = encryptFile(event.target.result);
+        socket.emit('file_upload', { file: encryptedFileData, filename: file.name });
+    };
+
+    if (file) {
+        reader.readAsArrayBuffer(file);
+    }
+};
+
+socket.on('message', function (data) {
+    const messagesDiv = document.getElementById('messages');
+    messagesDiv.innerHTML += '<div>' + data.message + '</div>';
+});
+
+socket.on('file_uploaded', function (data) {
+    const messagesDiv = document.getElementById('messages');
+    messagesDiv.innerHTML += '<div>File uploaded: ' + data.filename + '</div>';
+});
+
+// Encrypt message (dummy function for demonstration, implement proper encryption)
+function encryptMessage(message) {
+    return btoa(message); // Base64 encoding as a placeholder
+}
+
+// Encrypt file (dummy function for demonstration, implement proper encryption)
+function encryptFile(fileData) {
+    return btoa(fileData); // Base64 encoding as a placeholder
+}
+</script>
 </body>
 </html>
